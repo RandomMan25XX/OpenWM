@@ -2,5 +2,6 @@ This is a fork of Yacoby's fork of Wrye Mash, in an attempt to port it to more o
 
 TODO:
 - Make all functions that use or look for a morrowind directory use a user chosen mod directory instead
-- Change all functions that morrowind.ini to handle openmw.cfg instead (this is where the bulk of the work is going to be)
+- Change all functions that use morrowind.ini to handle openmw.cfg instead (this is where the bulk of the work is going to be)
 - Disable troublesome features such as save manager, and ini tweaks untill i can get all the basic stuff running
+- Rewrite MWIiniFile class as OMWCfgFile to support openmw.cfg
