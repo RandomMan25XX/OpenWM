@@ -2930,6 +2930,10 @@ class MashApp(wx.App):
         if not self.SetMODDir():
             return False
 
+        # Find openmw.cfg
+        if not self.SetOMWConfig():
+            return False
+
         #from here we are sure that the mwDir is correct
         InitDirs()
         InitLinks()
@@ -2966,23 +2970,8 @@ class MashApp(wx.App):
         return True
 
     def SetMODDir(self):
-        # TODO: this is where the work begins
-        # Make it stop looking for morrowind dir and morrowind.ini
-        # Let the user choose (manual only for now) a mods directory instead
-        # Install mods using the openmw way instead of throwing them all inside
-        # the data folders, use seperate directories (must find the install function first)
         """Dialog to select mod installation directory. Called by OnInit()."""
-
-        ## Forget all this auto-detect stuff for now
-        #--Try parent directory.
-        # parentDir = os.path.split(os.getcwd())[0]
-        # if os.path.exists(os.path.join(parentDir,'Morrowind.ini')):
-        #     conf.settings['mwDir'] = parentDir
-        #     mosh.dirs['app'] = GPath(parentDir)
-        #     return True
-        # #--Already set?
-        # if os.path.exists(os.path.join(conf.settings['mwDir'],'Morrowind.ini')): 
-        #     return True
+        # TODO: Auto Detect, Check validity of the user selection
 
         #--Ask user through dialog.
         while True:
@@ -2994,34 +2983,42 @@ class MashApp(wx.App):
             if result != wx.ID_OK:
                 return False
             else: # Just go with whatever directory the user picked
-                # TODO: Verify its an actualy directory and not a file?
+                # TODO: Verify its an actual directory and not a file?
                 # maybe more checks
                 conf.settings['modDir'] = modDir
                 # mosh.dirs['app'] = GPath(mwDir) # Im not sure what this does, 
                 # best to leave it commented out and catch an error later
                 return True
 
-            # #--Valid Morrowind install directory?
-            # elif os.path.exists(os.path.join(mwDir,'Morrowind.ini')): 
-            #     conf.settings['mwDir'] = mwDir
-            #     return True
+    def SetOMWConfig(self):
+        """Dialog to select the openmw.cfg file"""
+        # TODO: Auto Detect, Check validity of the user selection
 
-            # #--Retry?
-            # retryDialog = wx.MessageDialog(None,
-            #     _(r'Can\'t find %s\Morrowind.ini! Try again?') % (mwDir,),
-            #     _('Morrowind Install Directory'),wx.YES_NO|wx.ICON_EXCLAMATION)
-            # result = retryDialog.ShowModal()
-            # retryDialog.Destroy()
+        #--Ask for the location of the openmw config file
+        while True:
+            cfgFileDialog = wx.FileDialog(None,_("Select your openmw.cfg file."), style=wx.FD_OPEN)
+            result = cfgFileDialog.ShowModal()
+            omwCfgFile = cfgFileDialog.GetPath()
+            cfgFileDialog.Destroy()
+            #--User canceled?
+            if result != wx.ID_OK:
+                return False
+            else:
+                # TODO: Verify its the actual openmw.cfg file
+                # maybe more checks
+                conf.settings['omwConfigFile'] = omwCfgFile
+                return True
 
     def InitData(self):
         """Initialize all data. Called by OnInit()."""
         modDir = conf.settings['modDir']
+        omwCfgFile = conf.settings['omwConfigFile']
 
         # Dont worry about a morrowind directory for now, focus on the mods dir
         # mosh.dirs['app'] = GPath(mwDir)
 
-        mosh.mwIniFile = mosh.MWIniFile(mwDir)
-        mosh.mwIniFile.refresh()
+        mosh.omwCfgFile = mosh.MWIniFile(omwCfgFile)
+        mosh.omwCfgFile.refresh()
 
         mosh.modInfos = mosh.ModInfos(modDir)
         mosh.modInfos.refresh()
