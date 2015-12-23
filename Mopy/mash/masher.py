@@ -2926,8 +2926,8 @@ class MashApp(wx.App):
         """wxWindows: Initialization handler."""
 
         InitSettings()
-        #--Check/Set mwDir
-        if not self.SetMWDir():
+        #--Check/Set modDir
+        if not self.SetMODDir():
             return False
 
         #from here we are sure that the mwDir is correct
@@ -2965,13 +2965,13 @@ class MashApp(wx.App):
         #-#
         return True
 
-    def SetMWDir(self):
+    def SetMODDir(self):
         # TODO: this is where the work begins
         # Make it stop looking for morrowind dir and morrowind.ini
         # Let the user choose (manual only for now) a mods directory instead
         # Install mods using the openmw way instead of throwing them all inside
         # the data folders, use seperate directories (must find the install function first)
-        """Dialog to select Morrowind installation directory. Called by OnInit()."""
+        """Dialog to select mod installation directory. Called by OnInit()."""
 
         ## Forget all this auto-detect stuff for now
         #--Try parent directory.
@@ -2996,12 +2996,14 @@ class MashApp(wx.App):
             else: # Just go with whatever directory the user picked
                 # TODO: Verify its an actualy directory and not a file?
                 # maybe more checks
+                conf.settings['modDir'] = modDir
+                # mosh.dirs['app'] = GPath(mwDir) # Im not sure what this does, 
+                # best to leave it commented out and catch an error later
                 return True
 
             # #--Valid Morrowind install directory?
             # elif os.path.exists(os.path.join(mwDir,'Morrowind.ini')): 
             #     conf.settings['mwDir'] = mwDir
-            #     mosh.dirs['app'] = GPath(mwDir)
             #     return True
 
             # #--Retry?
@@ -3013,12 +3015,17 @@ class MashApp(wx.App):
 
     def InitData(self):
         """Initialize all data. Called by OnInit()."""
-        mwDir = conf.settings['mwDir']
-        mosh.dirs['app'] = GPath(mwDir)
+        modDir = conf.settings['modDir']
+
+        # Dont worry about a morrowind directory for now, focus on the mods dir
+        # mosh.dirs['app'] = GPath(mwDir)
+
         mosh.mwIniFile = mosh.MWIniFile(mwDir)
         mosh.mwIniFile.refresh()
-        mosh.modInfos = mosh.ModInfos(os.path.join(mwDir,'Data Files'))
+
+        mosh.modInfos = mosh.ModInfos(modDir)
         mosh.modInfos.refresh()
+
         mosh.saveInfos = mosh.SaveInfos(os.path.join(mwDir,'Saves'))
         mosh.saveInfos.refresh()
 
